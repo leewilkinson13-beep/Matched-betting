@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matched Betting Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #0d1b2a;
+  --navy-mid: #1a2d42;
+  --navy-light: #243d57;
+  --accent-blue: #2d7dd2;
+  --accent-cyan: #3bc9db;
+  --back-bg: #e8f4fd;
+  --back-border: #2d7dd2;
+  --lay-bg: #fde8e8;
+  --lay-border: #e05c5c;
+  --lay-accent: #e05c5c;
+  --surface: #ffffff;
+  --border: #dde4ec;
+  --text-primary: #0d1b2a;
+  --text-secondary: #4a6080;
+  --text-muted: #7a90a8;
+  --bg: #eef2f7;
+  --radius: 10px;
+  --profit: #1a9c5b;
+  --loss: #e05c5c;
+}
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── TOP NAV ── */
+.top-bar {
+  width: 100%;
+  background: var(--navy);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.top-bar-icon {
+  width: 32px; height: 32px;
+  background: var(--accent-blue);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.top-bar-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px; font-weight: 700;
+  color: #fff; letter-spacing: -0.01em;
+  flex: 1;
+}
+.top-bar-sub {
+  font-size: 10px; color: var(--accent-cyan);
+  font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── NAV TABS ── */
+.nav-scroll {
+  width: 100%;
+  background: var(--navy-mid);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-scroll::-webkit-scrollbar { display: none; }
+.nav-tabs {
+  display: flex;
+  padding: 0 12px;
+  gap: 2px;
+  min-width: max-content;
+}
+.nav-tab {
+  padding: 10px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  border: none; background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: rgba(255,255,255,0.75); }
+.nav-tab.active {
+  color: var(--accent-cyan);
+  border-bottom-color: var(--accent-cyan);
+}
+
+/* ── MAIN CONTENT ── */
+.main {
+  width: 100%;
+  max-width: 520px;
+  padding: 20px 16px 48px;
+}
+
+/* ── CALC PANEL ── */
+.calc-panel { display: none; }
+.calc-panel.active { display: block; }
+
+/* ── SHARED CARD STYLES ── */
+.calc-header {
+  background: var(--navy);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.calc-header-icon {
+  width: 30px; height: 30px;
+  background: var(--accent-blue);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.calc-header h2 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px; font-weight: 600;
+  color: #fff; letter-spacing: -0.01em;
+}
+.calc-header p {
+  font-size: 10px; color: var(--accent-cyan);
+  font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.calc-body {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: 20px;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+/* ── SECTIONS ── */
+.section-back {
+  background: var(--back-bg);
+  border: 1.5px solid var(--back-border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.section-lay {
+  background: var(--lay-bg);
+  border: 1.5px solid var(--lay-border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.section-neutral {
+  background: #f4f6f9;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.section-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 5px;
+}
+.section-back .section-title { color: var(--back-border); }
+.section-lay .section-title { color: var(--lay-accent); }
+.section-neutral .section-title { color: var(--text-secondary); }
+.s-dot { width: 6px; height: 6px; border-radius: 50%; }
+.s-dot-back { background: var(--back-border); }
+.s-dot-lay { background: var(--lay-accent); }
+.s-dot-neutral { background: var(--text-secondary); }
+
+/* ── FIELD LABEL ── */
+.fl {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 5px; display: block;
+}
+.section-back .fl { color: var(--back-border); }
+.section-lay .fl { color: var(--lay-accent); }
+.section-neutral .fl { color: var(--text-secondary); }
+.fl-neutral { color: var(--text-secondary) !important; }
+
+/* ── GRID LAYOUTS ── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.fg { margin-bottom: 10px; }
+.fg:last-child { margin-bottom: 0; }
+
+/* ── INPUTS ── */
+select, input[type="number"], input[type="text"] {
+  width: 100%; padding: 9px 11px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.85);
+  transition: border-color 0.15s, background 0.15s;
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+select {
+  background: rgba(255,255,255,0.85) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234a6080' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance: none; cursor: pointer;
+}
+input:focus, select:focus { outline: none; background: #fff; }
+.section-back input:focus, .section-back select:focus { border-color: var(--back-border); }
+.section-lay input:focus, .section-lay select:focus { border-color: var(--lay-accent); }
+
+/* prefix/suffix inputs */
+.iw { position: relative; }
+.ipfx {
+  position: absolute; left: 9px; top: 50%;
+  transform: translateY(-50%);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-secondary); pointer-events: none;
+}
+.isfx {
+  position: absolute; right: 9px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px; color: var(--text-muted); pointer-events: none;
+}
+.iw.pfx input { padding-left: 22px; }
+.iw.sfx input { padding-right: 22px; }
+
+/* read-only display */
+.ro {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.07) !important;
+  color: var(--text-secondary) !important;
+  cursor: default;
+}
+
+/* ── RESULTS PANEL ── */
+.results {
+  background: var(--navy);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-top: 4px;
+}
+.results-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent-cyan); margin-bottom: 12px;
+}
+.rg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.ri {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 7px; padding: 10px;
+}
+.ri.full { grid-column: 1/-1; }
+.ri-label { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; }
+.ri-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 17px; font-weight: 600; color: #fff;
+}
+.ri-val.pos { color: #4ade80; }
+.ri-val.neg { color: #f87171; }
+.ri-val.neu { color: #93c5fd; }
+.ri-val.sm { font-size: 14px; }
+.rdivider { height: 1px; background: rgba(255,255,255,0.07); margin: 8px 0; }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+/* ── RESET ── */
+.reset-btn {
+  display: block; text-align: center;
+  margin-top: 10px; font-size: 11px;
+  color: var(--text-muted); cursor: pointer;
+  text-decoration: underline;
+  background: none; border: none;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.reset-btn:hover { color: var(--text-secondary); }
+
+/* ── ACTION BUTTONS ── */
+.action-btn {
+  padding: 8px 14px;
+  background: var(--navy-light);
+  color: #fff; border: none;
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer; transition: background 0.15s;
+}
+.action-btn:hover { background: var(--accent-blue); }
+.action-btn.danger { background: rgba(224,92,92,0.2); color: var(--lay-accent); }
+.action-btn.danger:hover { background: var(--lay-accent); color: #fff; }
+.btn-row { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+
+/* ── DUTCH TABLE ── */
+.dutch-table { width: 100%; border-collapse: collapse; }
+.dutch-table th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 6px 8px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.dutch-table td { padding: 5px 4px; vertical-align: middle; }
+.dutch-table td:first-child {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: var(--accent-blue); text-align: center; width: 28px;
+}
+.dutch-table input { font-size: 12px; padding: 7px 8px; }
+.dutch-total {
+  display: flex; justify-content: space-between;
+  padding: 10px 4px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── ODDS CONVERTER ── */
+.odds-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.odds-type {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-secondary);
+  width: 80px; flex-shrink: 0;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.conv-btn {
+  padding: 8px 14px;
+  background: var(--accent-blue); color: #fff;
+  border: none; border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+  flex-shrink: 0;
+}
+.conv-btn:hover { background: #2567b8; }
+.frac-wrap { display: flex; align-items: center; gap: 4px; flex: 1; }
+.frac-sep { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: var(--text-muted); }
+.prob-display {
+  background: var(--navy);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 10px;
+}
+.prob-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.prob-item { text-align: center; }
+.prob-label { font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+.prob-val { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 600; color: #fff; }
+
+/* ── MULTI LAY TABLE ── */
+.ml-row {
+  display: grid; grid-template-columns: 24px 1fr 80px 70px 80px 80px;
+  gap: 5px; align-items: center; margin-bottom: 6px;
+}
+.ml-header {
+  display: grid; grid-template-columns: 24px 1fr 80px 70px 80px 80px;
+  gap: 5px; margin-bottom: 6px; padding-bottom: 6px;
+  border-bottom: 1px solid rgba(224,92,92,0.2);
+}
+.ml-header span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--lay-accent);
+}
+.ml-row input { font-size: 12px; padding: 7px 7px; }
+.ml-num { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: var(--lay-accent); text-align: center; }
+.ml-ro { background: rgba(0,0,0,0.04); border: 1.5px solid rgba(0,0,0,0.07); border-radius: 7px; padding: 7px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-secondary); }
+
+/* ── EACH WAY ── */
+.ew-section-title {
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.section-back .ew-section-title { color: var(--back-border); }
+.section-lay .ew-section-title { color: var(--lay-accent); }
+
+/* ── NOTE ── */
+.note {
+  background: #fffbeb; border: 1px solid #fcd34d;
+  border-radius: 7px; padding: 8px 10px;
+  font-size: 11px; color: #92400e;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 380px) {
+  .calc-body { padding: 14px; }
+  .ri-val { font-size: 15px; }
+  .ml-row, .ml-header { grid-template-columns: 20px 1fr 65px 55px 65px 65px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-icon">📊</div>
+  <div style="flex:1">
+    <div class="top-bar-title">Betting Hub</div>
+    <div class="top-bar-sub">6 Calculators</div>
+  </div>
+</div>
+
+<div class="nav-scroll">
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showCalc('standard')">Standard</button>
+    <button class="nav-tab" onclick="showCalc('eachway')">Each Way</button>
+    <button class="nav-tab" onclick="showCalc('dutch')">Dutch</button>
+    <button class="nav-tab" onclick="showCalc('multilay')">Multi Lay</button>
+    <button class="nav-tab" onclick="showCalc('betbuilder')">Bet Builder</button>
+    <button class="nav-tab" onclick="showCalc('odds')">Odds</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ════════════════════════════════════════
+     1. STANDARD CALCULATOR
+════════════════════════════════════════ -->
+<div class="calc-panel active" id="panel-standard">
+  <div class="calc-header">
+    <div class="calc-header-icon">⚖️</div>
+    <div>
+      <h2>Standard Calculator</h2>
+      <p>Back & lay matching</p>
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="section-back">
+      <div class="section-title"><span class="s-dot s-dot-back"></span> Back Bet</div>
+      <div class="fg">
+        <label class="fl">Bet Type</label>
+        <select id="s-betType" onchange="sCalc()">
+          <option value="normal">Normal</option>
+          <option value="snr">Free Bet (SNR)</option>
+          <option value="sr">Free Bet (SR)</option>
+          <option value="riskfree">Risk Free</option>
+        </select>
+      </div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Stake</label>
+          <div class="iw pfx"><span class="ipfx">£</span>
+            <input type="number" id="s-stake" placeholder="0.00" step="0.01" min="0" oninput="sCalc()">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Back Odds</label>
+          <input type="number" id="s-backOdds" placeholder="2.00" step="0.01" min="1.01" oninput="sCalc()">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Bookie Commission %</label>
+        <div class="iw sfx"><span class="isfx">%</span>
+          <input type="number" id="s-bookieComm" value="0" step="0.1" min="0" max="100" oninput="sCalc()">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-lay">
+      <div class="section-title"><span class="s-dot s-dot-lay"></span> Lay Bet</div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Lay Odds</label>
+          <input type="number" id="s-layOdds" placeholder="2.02" step="0.01" min="1.01" oninput="sCalc()">
+        </div>
+        <div class="fg">
+          <label class="fl">Commission %</label>
+          <div class="iw sfx"><span class="isfx">%</span>
+            <input type="number" id="s-layComm" value="2" step="0.1" min="0" max="100" oninput="sCalc()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="results-title">⚡ Results</div>
+      <div class="rg">
+        <div class="ri"><div class="ri-label">Lay Stake</div><div class="ri-val neu" id="s-rLayStake">—</div></div>
+        <div class="ri"><div class="ri-label">Lay Liability</div><div class="ri-val neg" id="s-rLiability">—</div></div>
+        <div class="ri"><div class="ri-label">If Back Wins</div><div class="ri-val" id="s-rBackWins">—</div></div>
+        <div class="ri"><div class="ri-label">If Lay Wins</div><div class="ri-val" id="s-rLayWins">—</div></div>
+      </div>
+      <div class="rdivider"></div>
+      <div class="ri full"><div class="ri-label">Profit / Loss</div><div class="ri-val" id="s-rProfit">Enter values above</div></div>
+    </div>
+    <button class="reset-btn" onclick="sReset()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     2. EACH WAY CALCULATOR
+════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-eachway">
+  <div class="calc-header">
+    <div class="calc-header-icon">🏇</div>
+    <div>
+      <h2>Each Way Calculator</h2>
+      <p>Win + place lay hedging</p>
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="section-back">
+      <div class="ew-section-title">Each Way Bet</div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Bookmaker Odds</label>
+          <input type="number" id="ew-backOdds" placeholder="10.00" step="0.01" min="1.01" oninput="ewCalc()">
+        </div>
+        <div class="fg">
+          <label class="fl">Total Stake (EW)</label>
+          <div class="iw pfx"><span class="ipfx">£</span>
+            <input type="number" id="ew-totalStake" placeholder="10.00" step="0.01" min="0" oninput="ewCalc()">
+          </div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Place Fraction</label>
+          <select id="ew-placeFrac" onchange="ewCalc()">
+            <option value="0.25">1/4</option>
+            <option value="0.2">1/5</option>
+            <option value="0.333">1/3</option>
+            <option value="0.5">1/2</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Places Paid</label>
+          <select id="ew-places" onchange="ewCalc()">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-lay">
+      <div class="ew-section-title">Lay the Win</div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Exchange Odds</label>
+          <input type="number" id="ew-winLayOdds" placeholder="11.00" step="0.01" min="1.01" oninput="ewCalc()">
+        </div>
+        <div class="fg">
+          <label class="fl">Commission %</label>
+          <div class="iw sfx"><span class="isfx">%</span>
+            <input type="number" id="ew-winComm" value="2" step="0.1" min="0" max="100" oninput="ewCalc()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-lay" style="margin-bottom:4px">
+      <div class="ew-section-title">Lay the Place</div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Exchange Odds</label>
+          <input type="number" id="ew-placeLayOdds" placeholder="4.00" step="0.01" min="1.01" oninput="ewCalc()">
+        </div>
+        <div class="fg">
+          <label class="fl">Commission %</label>
+          <div class="iw sfx"><span class="isfx">%</span>
+            <input type="number" id="ew-placeComm" value="2" step="0.1" min="0" max="100" oninput="ewCalc()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="results-title">⚡ Results</div>
+      <div class="rg">
+        <div class="ri"><div class="ri-label">Win Lay Stake</div><div class="ri-val neu" id="ew-rWinLay">—</div></div>
+        <div class="ri"><div class="ri-label">Place Lay Stake</div><div class="ri-val neu" id="ew-rPlaceLay">—</div></div>
+        <div class="ri"><div class="ri-label">Win Liability</div><div class="ri-val neg" id="ew-rWinLiab">—</div></div>
+        <div class="ri"><div class="ri-label">Place Liability</div><div class="ri-val neg" id="ew-rPlaceLiab">—</div></div>
+      </div>
+      <div class="rdivider"></div>
+      <div class="rg">
+        <div class="ri"><div class="ri-label">If Wins</div><div class="ri-val" id="ew-rIfWin">—</div></div>
+        <div class="ri"><div class="ri-label">If Places</div><div class="ri-val" id="ew-rIfPlace">—</div></div>
+        <div class="ri full"><div class="ri-label">If Loses (Both lays win)</div><div class="ri-val" id="ew-rIfLose">—</div></div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="ewReset()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     3. DUTCH CALCULATOR
+════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-dutch">
+  <div class="calc-header">
+    <div class="calc-header-icon">🎯</div>
+    <div>
+      <h2>Dutch Calculator</h2>
+      <p>Equal profit across selections</p>
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="section-back">
+      <div class="section-title"><span class="s-dot s-dot-back"></span> Back Setup</div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Total Stake</label>
+          <div class="iw pfx"><span class="ipfx">£</span>
+            <input type="number" id="d-totalStake" placeholder="10.00" step="0.01" min="0" oninput="dCalc()">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Target</label>
+          <select id="d-target" onchange="dCalc()">
+            <option value="equal">Equal Profit</option>
+            <option value="first">First Selection</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Bet Type</label>
+        <select id="d-betType" onchange="dCalc()">
+          <option value="normal">Normal Bet</option>
+          <option value="free">Free Bet (SNR)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-neutral">
+      <div class="section-title"><span class="s-dot s-dot-neutral"></span> Selections</div>
+      <table class="dutch-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Odds</th><th>Comm %</th><th>Stake</th><th>Return</th><th>Profit</th>
+          </tr>
+        </thead>
+        <tbody id="d-tbody"></tbody>
+      </table>
+      <div class="dutch-total">
+        <span>Total Stake: <span id="d-totalOut">£0.00</span></span>
+        <span>Exp Profit: <span id="d-expProfit">£0.00</span></span>
+      </div>
+      <div class="btn-row">
+        <button class="action-btn" onclick="dAddRow()">+ Add Selection</button>
+        <button class="action-btn danger" onclick="dRemoveRow()">− Remove</button>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="dReset()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     4. MULTI LAY CALCULATOR
+════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-multilay">
+  <div class="calc-header">
+    <div class="calc-header-icon">🔀</div>
+    <div>
+      <h2>Multi Lay Calculator</h2>
+      <p>Multiple outcome lay hedging</p>
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="section-back">
+      <div class="section-title"><span class="s-dot s-dot-back"></span> Back Bet</div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Bet Type</label>
+          <select id="ml-betType" onchange="mlCalc()">
+            <option value="normal">Normal</option>
+            <option value="snr">Free Bet (SNR)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Back Stake</label>
+          <div class="iw pfx"><span class="ipfx">£</span>
+            <input type="number" id="ml-stake" placeholder="0.00" step="0.01" min="0" oninput="mlCalc()">
+          </div>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Back Odds</label>
+        <input type="number" id="ml-backOdds" placeholder="3.00" step="0.01" min="1.01" oninput="mlCalc()">
+      </div>
+    </div>
+
+    <div class="section-lay">
+      <div class="section-title"><span class="s-dot s-dot-lay"></span> Lay Outcomes</div>
+      <div class="ml-header">
+        <span>#</span><span>Outcome</span><span>Lay Odds</span><span>Comm %</span><span>Lay Stake</span><span>Liability</span>
+      </div>
+      <div id="ml-rows"></div>
+      <div class="btn-row">
+        <button class="action-btn" onclick="mlAddRow()">+ Add Lay</button>
+        <button class="action-btn danger" onclick="mlRemoveRow()">− Remove</button>
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="results-title">⚡ Results</div>
+      <div class="rg">
+        <div class="ri"><div class="ri-label">Total Lay Stake</div><div class="ri-val neu" id="ml-rTotalLay">—</div></div>
+        <div class="ri"><div class="ri-label">Total Liability</div><div class="ri-val neg" id="ml-rTotalLiab">—</div></div>
+        <div class="ri full"><div class="ri-label">Est. Profit (back wins scenario)</div><div class="ri-val" id="ml-rProfit">Enter values above</div></div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="mlReset()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     5. BET BUILDER CALCULATOR
+════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-betbuilder">
+  <div class="calc-header">
+    <div class="calc-header-icon">🏗️</div>
+    <div>
+      <h2>Bet Builder</h2>
+      <p>Combined outcome lay calc</p>
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="section-back">
+      <div class="section-title"><span class="s-dot s-dot-back"></span> Back Bet</div>
+      <div class="fg">
+        <label class="fl">Bet Type</label>
+        <select id="bb-betType" onchange="bbCalc()">
+          <option value="normal">Normal</option>
+          <option value="snr">Free Bet (SNR)</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Bet Selection</label>
+        <select id="bb-bet" onchange="bbBetChange()">
+          <optgroup label="BTTS">
+            <option value="btts_yes_u35">BTTS Yes / Under 3.5</option>
+            <option value="btts_yes_o25">BTTS Yes / Over 2.5</option>
+            <option value="btts_no_u35">BTTS No / Under 3.5</option>
+          </optgroup>
+          <optgroup label="Home">
+            <option value="home_btts_yes">Home / BTTS Yes</option>
+            <option value="home_btts_yes_u35">Home / BTTS Yes / Under 3.5</option>
+            <option value="home_btts_yes_u45">Home / BTTS Yes / Under 4.5</option>
+            <option value="home_btts_no_u35">Home / BTTS No / Under 3.5</option>
+            <option value="home_o25_u35">Home / Over 2.5 / Under 3.5</option>
+          </optgroup>
+          <optgroup label="Away">
+            <option value="away_btts_yes">Away / BTTS Yes</option>
+            <option value="away_btts_yes_u35">Away / BTTS Yes / Under 3.5</option>
+            <option value="away_btts_yes_u45">Away / BTTS Yes / Under 4.5</option>
+            <option value="away_btts_no_u35">Away / BTTS No / Under 3.5</option>
+            <option value="away_o25_u35">Away / Over 2.5 / Under 3.5</option>
+          </optgroup>
+          <optgroup label="Draw">
+            <option value="draw_btts_no">Draw / BTTS No</option>
+            <option value="draw_btts_yes_u45">Draw / BTTS Yes / Under 4.5</option>
+            <option value="draw_u25">Draw / Under 2.5</option>
+            <option value="draw_u45">Draw / Under 4.5</option>
+          </optgroup>
+          <optgroup label="Correct Score">
+            <option value="score_11">1-1</option>
+            <option value="score_21">2-1</option>
+            <option value="score_12">1-2</option>
+            <option value="score_10">1-0</option>
+            <option value="score_01">0-1</option>
+            <option value="score_00">0-0</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="g2">
+        <div class="fg">
+          <label class="fl">Back Stake</label>
+          <div class="iw pfx"><span class="ipfx">£</span>
+            <input type="number" id="bb-stake" placeholder="0.00" step="0.01" min="0" oninput="bbCalc()">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Back Odds</label>
+          <input type="number" id="bb-backOdds" placeholder="5.50" step="0.01" min="1.01" oninput="bbCalc()">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-lay">
+      <div class="section-title"><span class="s-dot s-dot-lay"></span> Lay Outcomes</div>
+      <div class="ml-header" style="grid-template-columns:24px 1fr 80px 70px 80px 80px">
+        <span>#</span><span>Outcome</span><span>Lay Odds</span><span>Comm %</span><span>Lay Stake</span><span>Liability</span>
+      </div>
+      <div id="bb-rows"></div>
+    </div>
+
+    <div class="results">
+      <div class="results-title">⚡ Results</div>
+      <div class="rg">
+        <div class="ri"><div class="ri-label">Optimal Lay Stake</div><div class="ri-val neu" id="bb-rLay">—</div></div>
+        <div class="ri"><div class="ri-label">Lay Liability</div><div class="ri-val neg" id="bb-rLiab">—</div></div>
+        <div class="ri"><div class="ri-label">If Back Wins</div><div class="ri-val" id="bb-rBackWin">—</div></div>
+        <div class="ri"><div class="ri-label">If Lay Wins</div><div class="ri-val" id="bb-rLayWin">—</div></div>
+      </div>
+      <div class="rdivider"></div>
+      <div class="ri full"><div class="ri-label">Best Profit</div><div class="ri-val" id="bb-rProfit">Enter values above</div></div>
+    </div>
+    <button class="reset-btn" onclick="bbReset()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     6. ODDS CONVERTER
+════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-odds">
+  <div class="calc-header">
+    <div class="calc-header-icon">🔄</div>
+    <div>
+      <h2>Odds Converter</h2>
+      <p>Fractional · Decimal · American</p>
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="section-neutral">
+      <div class="section-title"><span class="s-dot s-dot-neutral"></span> Convert Odds</div>
+
+      <div class="odds-row">
+        <span class="odds-type">Fractional</span>
+        <div class="frac-wrap">
+          <input type="number" id="oc-fracA" placeholder="9" min="1" step="1" oninput="ocFromFrac()" style="flex:1">
+          <span class="frac-sep">/</span>
+          <input type="number" id="oc-fracB" placeholder="1" min="1" step="1" oninput="ocFromFrac()" style="flex:1">
+        </div>
+        <button class="conv-btn" onclick="ocFromFrac()">Use</button>
+      </div>
+
+      <div class="odds-row">
+        <span class="odds-type">Decimal</span>
+        <input type="number" id="oc-decimal" placeholder="10.00" step="0.01" min="1.01" oninput="ocFromDecimal()" style="flex:1">
+        <button class="conv-btn" onclick="ocFromDecimal()">Use</button>
+      </div>
+
+      <div class="odds-row">
+        <span class="odds-type">American</span>
+        <input type="number" id="oc-american" placeholder="+900" step="1" oninput="ocFromAmerican()" style="flex:1">
+        <button class="conv-btn" onclick="ocFromAmerican()">Use</button>
+      </div>
+    </div>
+
+    <div class="prob-display">
+      <div class="results-title">⚡ Conversions</div>
+      <div class="prob-grid">
+        <div class="prob-item">
+          <div class="prob-label">Fractional</div>
+          <div class="prob-val" id="oc-rFrac">—</div>
+        </div>
+        <div class="prob-item">
+          <div class="prob-label">Decimal</div>
+          <div class="prob-val" id="oc-rDec">—</div>
+        </div>
+        <div class="prob-item">
+          <div class="prob-label">American</div>
+          <div class="prob-val" id="oc-rAmer">—</div>
+        </div>
+      </div>
+      <div class="rdivider"></div>
+      <div class="prob-grid">
+        <div class="prob-item">
+          <div class="prob-label">Implied Prob</div>
+          <div class="prob-val" id="oc-rProb">—</div>
+        </div>
+        <div class="prob-item">
+          <div class="prob-label">£10 Returns</div>
+          <div class="prob-val" id="oc-rReturn">—</div>
+        </div>
+        <div class="prob-item">
+          <div class="prob-label">£10 Profit</div>
+          <div class="prob-val" id="oc-rProfit">—</div>
+        </div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="ocReset()">↺ Reset</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ── NAVIGATION ──
+function showCalc(id) {
+  document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── HELPERS ──
+function fmtP(n) {
+  if (n === null || isNaN(n) || !isFinite(n)) return '—';
+  return (n < 0 ? '-' : '') + '£' + Math.abs(n).toFixed(2);
+}
+function setRV(id, val, type) {
+  const el = document.getElementById(id);
+  if (val === null) { el.textContent = '—'; el.className = 'ri-val'; return; }
+  el.textContent = fmtP(val);
+  el.className = 'ri-val ' + (type === 'pnl' ? (val >= -0.005 ? 'pos' : 'neg') : type === 'neg' ? 'neg' : 'neu');
+}
+
+// ════════════════════════════════════════
+// 1. STANDARD
+// ════════════════════════════════════════
+function sCalc() {
+  const bt = document.getElementById('s-betType').value;
+  const stake = parseFloat(document.getElementById('s-stake').value) || 0;
+  const bOdds = parseFloat(document.getElementById('s-backOdds').value) || 0;
+  const bComm = (parseFloat(document.getElementById('s-bookieComm').value) || 0) / 100;
+  const lOdds = parseFloat(document.getElementById('s-layOdds').value) || 0;
+  const lComm = (parseFloat(document.getElementById('s-layComm').value) || 0) / 100;
+
+  if (!stake || !bOdds || !lOdds || bOdds < 1.01 || lOdds < 1.01) { sClear(); return; }
+
+  let layStake, backWins, layWins;
+  if (bt === 'normal') {
+    layStake = (stake * bOdds * (1 - bComm)) / (lOdds - lComm);
+    backWins = stake * (bOdds * (1 - bComm) - 1) - layStake * (lOdds - 1);
+    layWins = layStake * (1 - lComm) - stake;
+  } else if (bt === 'snr') {
+    layStake = (stake * (bOdds - 1) * (1 - bComm)) / (lOdds - lComm);
+    backWins = stake * (bOdds - 1) * (1 - bComm) - layStake * (lOdds - 1);
+    layWins = layStake * (1 - lComm);
+  } else if (bt === 'sr') {
+    layStake = (stake * bOdds * (1 - bComm)) / (lOdds - lComm);
+    backWins = stake * (bOdds * (1 - bComm) - 1) - layStake * (lOdds - 1);
+    layWins = layStake * (1 - lComm);
+  } else {
+    layStake = (stake * bOdds * (1 - bComm)) / (lOdds - lComm);
+    backWins = stake * (bOdds * (1 - bComm) - 1) - layStake * (lOdds - 1);
+    layWins = layStake * (1 - lComm) - stake;
+  }
+  const liability = layStake * (lOdds - 1);
+  const profit = Math.min(backWins, layWins);
+
+  document.getElementById('s-rLayStake').textContent = '£' + layStake.toFixed(2);
+  document.getElementById('s-rLayStake').className = 'ri-val neu';
+  setRV('s-rLiability', -liability, 'neg');
+  setRV('s-rBackWins', backWins, 'pnl');
+  setRV('s-rLayWins', layWins, 'pnl');
+  setRV('s-rProfit', profit, 'pnl');
+}
+function sClear() {
+  ['s-rLayStake','s-rLiability','s-rBackWins','s-rLayWins'].forEach(id => { document.getElementById(id).textContent='—'; document.getElementById(id).className='ri-val'; });
+  document.getElementById('s-rProfit').textContent = 'Enter values above';
+  document.getElementById('s-rProfit').className = 'ri-val';
+}
+function sReset() {
+  ['s-stake','s-backOdds'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('s-bookieComm').value='0';
+  document.getElementById('s-layComm').value='2';
+  document.getElementById('s-betType').value='normal';
+  document.getElementById('s-layOdds').value='';
+  sClear();
+}
+
+// ════════════════════════════════════════
+// 2. EACH WAY
+// ════════════════════════════════════════
+function ewCalc() {
+  const bOdds = parseFloat(document.getElementById('ew-backOdds').value) || 0;
+  const totalStake = parseFloat(document.getElementById('ew-totalStake').value) || 0;
+  const placeFrac = parseFloat(document.getElementById('ew-placeFrac').value) || 0.25;
+  const winLayOdds = parseFloat(document.getElementById('ew-winLayOdds').value) || 0;
+  const winComm = (parseFloat(document.getElementById('ew-winComm').value) || 0) / 100;
+  const placeLayOdds = parseFloat(document.getElementById('ew-placeLayOdds').value) || 0;
+  const placeComm = (parseFloat(document.getElementById('ew-placeComm').value) || 0) / 100;
+
+  if (!bOdds || !totalStake || bOdds < 1.01) { ewClear(); return; }
+
+  const eachStake = totalStake / 2; // stake on win + stake on place
+  const placeOdds = (bOdds - 1) * placeFrac + 1; // place odds at bookmaker
+
+  // Win lay stake: equalise win scenario
+  let winLayStake = 0, placeLayStake = 0;
+  if (winLayOdds >= 1.01) {
+    winLayStake = (eachStake * bOdds) / (winLayOdds - winComm);
+  }
+  if (placeLayOdds >= 1.01) {
+    placeLayStake = (eachStake * placeOdds) / (placeLayOdds - placeComm);
+  }
+
+  const winLiab = winLayStake * (winLayOdds - 1);
+  const placeLiab = placeLayStake * (placeLayOdds - 1);
+
+  // Scenarios
+  // If WINS: back wins on both win and place legs
+  const ifWins = (eachStake * (bOdds - 1)) + (eachStake * (placeOdds - 1))
+    - winLayStake * (winLayOdds - 1) + winLayStake * (1 - winComm)
+    - placeLayStake * (placeLayOdds - 1) + placeLayStake * (1 - placeComm)
+    - totalStake;
+  // Simpler: net after all bets settle
+  const backWinReturn = eachStake * bOdds + eachStake * placeOdds;
+  const layWinCost = winLayStake * (winLayOdds - 1) + placeLayStake * (placeLayOdds - 1);
+  const layWinReturn = winLayStake * (1 - winComm) + placeLayStake * (1 - placeComm);
+  const ifWin = backWinReturn - totalStake - layWinCost + layWinReturn;
+
+  // If PLACES (not wins): win leg loses, place leg wins
+  const ifPlace = (eachStake * placeOdds - eachStake)
+    - eachStake // win leg lost
+    + winLayStake * (1 - winComm) // win lay wins
+    - placeLayStake * (placeLayOdds - 1) + placeLayStake * (1 - placeComm);
+
+  // If LOSES: both legs lose, both lays win
+  const ifLose = winLayStake * (1 - winComm) + placeLayStake * (1 - placeComm) - totalStake;
+
+  document.getElementById('ew-rWinLay').textContent = winLayOdds >= 1.01 ? '£' + winLayStake.toFixed(2) : '—';
+  document.getElementById('ew-rWinLay').className = 'ri-val neu';
+  document.getElementById('ew-rPlaceLay').textContent = placeLayOdds >= 1.01 ? '£' + placeLayStake.toFixed(2) : '—';
+  document.getElementById('ew-rPlaceLay').className = 'ri-val neu';
+
+  const setN = (id, v) => { document.getElementById(id).textContent = isNaN(v)?'—':fmtP(-Math.abs(v)); document.getElementById(id).className='ri-val neg'; };
+  if (winLayOdds >= 1.01) setN('ew-rWinLiab', winLiab); else { document.getElementById('ew-rWinLiab').textContent='—'; document.getElementById('ew-rWinLiab').className='ri-val'; }
+  if (placeLayOdds >= 1.01) setN('ew-rPlaceLiab', placeLiab); else { document.getElementById('ew-rPlaceLiab').textContent='—'; document.getElementById('ew-rPlaceLiab').className='ri-val'; }
+
+  setRV('ew-rIfWin', ifWin, 'pnl');
+  setRV('ew-rIfPlace', ifPlace, 'pnl');
+  setRV('ew-rIfLose', ifLose, 'pnl');
+}
+function ewClear() {
+  ['ew-rWinLay','ew-rPlaceLay','ew-rWinLiab','ew-rPlaceLiab','ew-rIfWin','ew-rIfPlace','ew-rIfLose'].forEach(id => { document.getElementById(id).textContent='—'; document.getElementById(id).className='ri-val'; });
+}
+function ewReset() {
+  ['ew-backOdds','ew-totalStake','ew-winLayOdds','ew-placeLayOdds'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('ew-winComm').value='2';
+  document.getElementById('ew-placeComm').value='2';
+  ewClear();
+}
+
+// ════════════════════════════════════════
+// 3. DUTCH
+// ════════════════════════════════════════
+let dRows = 2;
+function dInit() {
+  const tbody = document.getElementById('d-tbody');
+  tbody.innerHTML = '';
+  for (let i = 0; i < dRows; i++) dAddRowEl(i + 1);
+}
+function dAddRowEl(n) {
+  const tbody = document.getElementById('d-tbody');
+  const tr = document.createElement('tr');
+  tr.id = 'd-row-' + n;
+  tr.innerHTML = `<td>${n}</td>
+    <td><input type="number" id="d-odds${n}" placeholder="—" step="0.01" min="1.01" oninput="dCalc()"></td>
+    <td><input type="number" id="d-comm${n}" value="0" step="0.1" min="0" max="100" oninput="dCalc()"></td>
+    <td><div class="ml-ro" id="d-stake${n}">—</div></td>
+    <td><div class="ml-ro" id="d-return${n}">—</div></td>
+    <td><div class="ml-ro" id="d-profit${n}">—</div></td>`;
+  tbody.appendChild(tr);
+}
+function dAddRow() {
+  dRows++;
+  dAddRowEl(dRows);
+  dCalc();
+}
+function dRemoveRow() {
+  if (dRows <= 2) return;
+  document.getElementById('d-row-' + dRows).remove();
+  dRows--;
+  dCalc();
+}
+function dCalc() {
+  const total = parseFloat(document.getElementById('d-totalStake').value) || 0;
+  const bt = document.getElementById('d-betType').value;
+  if (!total) { dClearOutput(); return; }
+
+  // Collect odds
+  const rows = [];
+  for (let i = 1; i <= dRows; i++) {
+    const o = parseFloat(document.getElementById('d-odds' + i)?.value) || 0;
+    const c = (parseFloat(document.getElementById('d-comm' + i)?.value) || 0) / 100;
+    rows.push({ odds: o, comm: c });
+  }
+
+  // Dutch: allocate stakes proportional to 1/odds so all return same amount
+  const validRows = rows.filter(r => r.odds >= 1.01);
+  if (validRows.length < 2) { dClearOutput(); return; }
+
+  // Sum of 1/effective_odds
+  const effOddsArr = rows.map(r => r.odds >= 1.01 ? (r.odds - r.comm) : 0);
+  const invSum = effOddsArr.reduce((s, eo) => s + (eo > 0 ? 1 / eo : 0), 0);
+
+  let totalOut = 0, profitCheck = null;
+  for (let i = 1; i <= dRows; i++) {
+    const r = rows[i - 1];
+    if (r.odds < 1.01) {
+      ['d-stake','d-return','d-profit'].forEach(p => { const el=document.getElementById(p+i); if(el) el.textContent='—'; });
+      continue;
+    }
+    const eo = r.odds - r.comm;
+    const stakeI = bt === 'free' ? (total / invSum) / eo : total / (invSum * eo);
+    // For equal profit dutching: stake_i = total * (1/eo) / invSum... but simplest: allocate proportionally
+    // Standard dutch: stake_i = total * (1/odds_i) / sum(1/odds_j)
+    const stakeStd = total * (1 / r.odds) / rows.reduce((s, rr) => s + (rr.odds >= 1.01 ? 1/rr.odds : 0), 0);
+    const returnI = stakeStd * r.odds;
+    const profitI = returnI - total;
+    totalOut += stakeStd;
+    if (profitCheck === null) profitCheck = profitI;
+
+    const s = (id) => document.getElementById(id + i);
+    if (s('d-stake')) s('d-stake').textContent = '£' + stakeStd.toFixed(2);
+    if (s('d-return')) s('d-return').textContent = '£' + returnI.toFixed(2);
+    if (s('d-profit')) s('d-profit').textContent = fmtP(profitI);
+  }
+
+  document.getElementById('d-totalOut').textContent = '£' + totalOut.toFixed(2);
+  document.getElementById('d-expProfit').textContent = profitCheck !== null ? fmtP(profitCheck) : '—';
+}
+function dClearOutput() {
+  for (let i = 1; i <= dRows; i++) {
+    ['d-stake','d-return','d-profit'].forEach(p => { const el=document.getElementById(p+i); if(el) el.textContent='—'; });
+  }
+  document.getElementById('d-totalOut').textContent = '£0.00';
+  document.getElementById('d-expProfit').textContent = '£0.00';
+}
+function dReset() {
+  document.getElementById('d-totalStake').value = '';
+  dRows = 2;
+  dInit();
+}
+
+// ════════════════════════════════════════
+// 4. MULTI LAY
+// ════════════════════════════════════════
+let mlRows = 2;
+function mlInit() {
+  document.getElementById('ml-rows').innerHTML = '';
+  mlRows = 2;
+  for (let i = 0; i < mlRows; i++) mlAddRowEl(i + 1);
+}
+function mlAddRowEl(n) {
+  const container = document.getElementById('ml-rows');
+  const div = document.createElement('div');
+  div.className = 'ml-row';
+  div.id = 'ml-row-' + n;
+  div.style.gridTemplateColumns = '24px 1fr 80px 70px 80px 80px';
+  div.innerHTML = `
+    <span class="ml-num">${n}</span>
+    <input type="text" id="ml-outcome${n}" placeholder="Outcome ${n}" oninput="mlCalc()">
+    <input type="number" id="ml-odds${n}" placeholder="—" step="0.01" min="1.01" oninput="mlCalc()">
+    <div class="iw sfx" style="position:relative"><span class="isfx">%</span><input type="number" id="ml-comm${n}" value="2" step="0.1" min="0" max="100" oninput="mlCalc()" style="padding-right:22px"></div>
+    <div class="ml-ro" id="ml-ls${n}">—</div>
+    <div class="ml-ro" id="ml-liab${n}">—</div>`;
+  container.appendChild(div);
+}
+function mlAddRow() { mlRows++; mlAddRowEl(mlRows); mlCalc(); }
+function mlRemoveRow() {
+  if (mlRows <= 2) return;
+  document.getElementById('ml-row-' + mlRows).remove();
+  mlRows--;
+  mlCalc();
+}
+function mlCalc() {
+  const stake = parseFloat(document.getElementById('ml-stake').value) || 0;
+  const backOdds = parseFloat(document.getElementById('ml-backOdds').value) || 0;
+  const bt = document.getElementById('ml-betType').value;
+  if (!stake || !backOdds || backOdds < 1.01) { mlClear(); return; }
+
+  let totalLay = 0, totalLiab = 0;
+  const lOdds0 = parseFloat(document.getElementById('ml-odds1')?.value) || 0;
+  const lComm0 = (parseFloat(document.getElementById('ml-comm1')?.value) || 0) / 100;
+  let profit = null;
+
+  for (let i = 1; i <= mlRows; i++) {
+    const lo = parseFloat(document.getElementById('ml-odds' + i)?.value) || 0;
+    const lc = (parseFloat(document.getElementById('ml-comm' + i)?.value) || 0) / 100;
+    const lsEl = document.getElementById('ml-ls' + i);
+    const llEl = document.getElementById('ml-liab' + i);
+    if (!lsEl) continue;
+    if (lo < 1.01) { lsEl.textContent='—'; llEl.textContent='—'; continue; }
+    let ls;
+    if (i === 1) {
+      ls = bt === 'snr' ? (stake * (backOdds - 1)) / (lo - lc) : (stake * backOdds) / (lo - lc);
+    } else {
+      ls = stake / (1 - lc);
+    }
+    const liab = ls * (lo - 1);
+    lsEl.textContent = '£' + ls.toFixed(2);
+    llEl.textContent = '-£' + liab.toFixed(2);
+    totalLay += ls;
+    totalLiab += liab;
+    if (i === 1) {
+      const bw = bt === 'snr' ? stake * (backOdds - 1) - liab : stake * (backOdds - 1) - liab;
+      const lw = ls * (1 - lc) - (bt === 'snr' ? 0 : stake);
+      profit = Math.min(bw, lw);
+    }
+  }
+  document.getElementById('ml-rTotalLay').textContent = '£' + totalLay.toFixed(2);
+  document.getElementById('ml-rTotalLay').className = 'ri-val neu';
+  document.getElementById('ml-rTotalLiab').textContent = '-£' + totalLiab.toFixed(2);
+  document.getElementById('ml-rTotalLiab').className = 'ri-val neg';
+  setRV('ml-rProfit', profit, 'pnl');
+}
+function mlClear() {
+  for (let i = 1; i <= mlRows; i++) {
+    const ls = document.getElementById('ml-ls' + i); const ll = document.getElementById('ml-liab' + i);
+    if (ls) ls.textContent = '—'; if (ll) ll.textContent = '—';
+  }
+  document.getElementById('ml-rTotalLay').textContent = '—';
+  document.getElementById('ml-rTotalLiab').textContent = '—';
+  document.getElementById('ml-rProfit').textContent = 'Enter values above';
+  document.getElementById('ml-rProfit').className = 'ri-val';
+}
+function mlReset() { document.getElementById('ml-stake').value=''; document.getElementById('ml-backOdds').value=''; mlInit(); mlClear(); }
+
+// ════════════════════════════════════════
+// 5. BET BUILDER
+// ════════════════════════════════════════
+const BB_BETS = {
+  btts_yes_u35: ['BTTS Yes + U3.5 (wins)', 'BTTS No OR 4+ goals', 'Other'],
+  btts_yes_o25: ['BTTS Yes + O2.5 (wins)', 'BTTS No OR U3', 'Other'],
+  btts_no_u35:  ['BTTS No + U3.5 (wins)', 'BTTS Yes OR 4+', 'Other'],
+  home_btts_yes:['Home + BTTS Yes (wins)', 'Draw/Away OR BTTS No'],
+  home_btts_yes_u35:['Home + BTTS Yes + U3.5', 'Any other result'],
+  home_btts_yes_u45:['Home + BTTS Yes + U4.5', 'Any other result'],
+  home_btts_no_u35: ['Home + BTTS No + U3.5', 'Any other result'],
+  home_o25_u35: ['Home + exactly 3 goals', 'Any other result'],
+  away_btts_yes:['Away + BTTS Yes (wins)', 'Home/Draw OR BTTS No'],
+  away_btts_yes_u35:['Away + BTTS Yes + U3.5', 'Any other result'],
+  away_btts_yes_u45:['Away + BTTS Yes + U4.5', 'Any other result'],
+  away_btts_no_u35: ['Away + BTTS No + U3.5', 'Any other result'],
+  away_o25_u35: ['Away + exactly 3 goals', 'Any other result'],
+  draw_btts_no: ['Draw + BTTS No (0-0)', 'Home/Away OR BTTS Yes'],
+  draw_btts_yes_u45:['Draw + BTTS Yes + U4.5', 'Any other result'],
+  draw_u25: ['Draw + U2.5', 'No draw OR 3+ goals'],
+  draw_u45: ['Draw + U4.5', 'No draw OR 5+'],
+  score_11: ['1-1','1-0','2-0','0-1','0-2','2-1','1-2','Other'],
+  score_21: ['2-1','1-0','2-0','0-1','0-2','1-1','1-2','Other'],
+  score_12: ['1-2','1-0','2-0','0-1','0-2','1-1','2-1','Other'],
+  score_10: ['1-0','2-0','0-1','0-2','1-1','2-1','1-2','Other'],
+  score_01: ['0-1','1-0','2-0','0-2','1-1','2-1','1-2','Other'],
+  score_00: ['0-0','1-0','0-1','1-1','2-0','0-2','Other'],
+};
+function bbBetChange() { bbRenderRows(); bbCalc(); }
+function bbRenderRows() {
+  const key = document.getElementById('bb-bet').value;
+  const outcomes = BB_BETS[key] || [];
+  const container = document.getElementById('bb-rows');
+  container.innerHTML = '';
+  outcomes.forEach((label, i) => {
+    const div = document.createElement('div');
+    div.className = 'ml-row';
+    div.style.gridTemplateColumns = '24px 1fr 80px 70px 80px 80px';
+    div.innerHTML = `
+      <span class="ml-num">${i+1}</span>
+      <input type="text" value="${label}" readonly style="font-size:11px;color:#4a6080;background:rgba(255,255,255,0.6)">
+      <input type="number" id="bb-lo${i}" placeholder="—" step="0.01" min="1.01" oninput="bbCalc()">
+      <div class="iw sfx" style="position:relative"><span class="isfx">%</span><input type="number" id="bb-lc${i}" value="2" step="0.1" min="0" max="100" oninput="bbCalc()" style="padding-right:22px"></div>
+      <div class="ml-ro" id="bb-ls${i}">—</div>
+      <div class="ml-ro" id="bb-ll${i}">—</div>`;
+    container.appendChild(div);
+  });
+}
+function bbCalc() {
+  const bt = document.getElementById('bb-betType').value;
+  const stake = parseFloat(document.getElementById('bb-stake').value) || 0;
+  const bOdds = parseFloat(document.getElementById('bb-backOdds').value) || 0;
+  const key = document.getElementById('bb-bet').value;
+  const outcomes = BB_BETS[key] || [];
+  if (!stake || !bOdds || bOdds < 1.01) { bbClear(outcomes.length); return; }
+
+  const lo0 = parseFloat(document.getElementById('bb-lo0')?.value) || 0;
+  const lc0 = (parseFloat(document.getElementById('bb-lc0')?.value) || 0) / 100;
+  let layStake = 0, liability = 0, backWins = 0, layWins = 0;
+  if (lo0 >= 1.01) {
+    layStake = bt === 'snr' ? (stake * (bOdds - 1)) / (lo0 - lc0) : (stake * bOdds) / (lo0 - lc0);
+    liability = layStake * (lo0 - 1);
+    backWins = bt === 'snr' ? stake * (bOdds - 1) - liability : stake * (bOdds - 1) - liability;
+    layWins = bt === 'snr' ? layStake * (1 - lc0) : layStake * (1 - lc0) - stake;
+  }
+  // Update row 0
+  if (document.getElementById('bb-ls0')) {
+    document.getElementById('bb-ls0').textContent = lo0>=1.01 ? '£'+layStake.toFixed(2) : '—';
+    document.getElementById('bb-ll0').textContent = lo0>=1.01 ? '-£'+liability.toFixed(2) : '—';
+  }
+  // Other rows
+  for (let i = 1; i < outcomes.length; i++) {
+    const lo = parseFloat(document.getElementById('bb-lo'+i)?.value) || 0;
+    const lc = (parseFloat(document.getElementById('bb-lc'+i)?.value) || 0)/100;
+    const lsEl = document.getElementById('bb-ls'+i);
+    const llEl = document.getElementById('bb-ll'+i);
+    if (!lsEl) continue;
+    if (lo < 1.01) { lsEl.textContent='—'; llEl.textContent='—'; continue; }
+    const ls = stake / (1 - lc);
+    lsEl.textContent = '£'+ls.toFixed(2);
+    llEl.textContent = '-£'+(ls*(lo-1)).toFixed(2);
+  }
+
+  setRV('bb-rLay', lo0>=1.01 ? layStake : null, 'neu');
+  if (lo0 < 1.01) { document.getElementById('bb-rLay').textContent='—'; }
+  setRV('bb-rLiab', lo0>=1.01 ? -liability : null, 'neg');
+  if (lo0 < 1.01) { document.getElementById('bb-rLiab').textContent='—'; }
+  setRV('bb-rBackWin', lo0>=1.01 ? backWins : null, 'pnl');
+  setRV('bb-rLayWin', lo0>=1.01 ? layWins : null, 'pnl');
+  const profit = lo0>=1.01 ? Math.min(backWins, layWins) : null;
+  if (profit !== null) { setRV('bb-rProfit', profit, 'pnl'); }
+  else { document.getElementById('bb-rProfit').textContent='Enter values above'; document.getElementById('bb-rProfit').className='ri-val'; }
+}
+function bbClear(n) {
+  for (let i = 0; i < (n||3); i++) {
+    const ls=document.getElementById('bb-ls'+i); const ll=document.getElementById('bb-ll'+i);
+    if(ls) ls.textContent='—'; if(ll) ll.textContent='—';
+  }
+  ['bb-rLay','bb-rLiab','bb-rBackWin','bb-rLayWin'].forEach(id=>{document.getElementById(id).textContent='—';document.getElementById(id).className='ri-val';});
+  document.getElementById('bb-rProfit').textContent='Enter values above';
+  document.getElementById('bb-rProfit').className='ri-val';
+}
+function bbReset() {
+  document.getElementById('bb-stake').value='';
+  document.getElementById('bb-backOdds').value='';
+  document.getElementById('bb-bet').value='btts_yes_u35';
+  document.getElementById('bb-betType').value='normal';
+  bbBetChange();
+}
+
+// ════════════════════════════════════════
+// 6. ODDS CONVERTER
+// ════════════════════════════════════════
+function ocUpdate(decimal) {
+  if (!decimal || decimal < 1.01) { ocClearDisplay(); return; }
+  // Decimal
+  document.getElementById('oc-decimal').value = decimal.toFixed(2);
+  document.getElementById('oc-rDec').textContent = decimal.toFixed(3);
+  // Fractional: simplify (dec-1) as fraction
+  const num = decimal - 1;
+  const gcd = (a, b) => b < 0.001 ? a : gcd(b, a % b);
+  const denom = 100;
+  const n = Math.round(num * denom);
+  const d = denom;
+  const g = gcd(n, d);
+  document.getElementById('oc-fracA').value = n/g;
+  document.getElementById('oc-fracB').value = d/g;
+  document.getElementById('oc-rFrac').textContent = (n/g) + '/' + (d/g);
+  // American
+  let amer;
+  if (decimal >= 2) { amer = '+' + Math.round((decimal - 1) * 100); }
+  else { amer = Math.round(-100 / (decimal - 1)); }
+  document.getElementById('oc-american').value = amer;
+  document.getElementById('oc-rAmer').textContent = (amer > 0 ? '+' : '') + amer;
+  // Prob & returns
+  const prob = (1 / decimal) * 100;
+  document.getElementById('oc-rProb').textContent = prob.toFixed(1) + '%';
+  document.getElementById('oc-rReturn').textContent = '£' + (10 * decimal).toFixed(2);
+  document.getElementById('oc-rProfit').textContent = '£' + (10 * (decimal - 1)).toFixed(2);
+}
+function ocFromFrac() {
+  const a = parseFloat(document.getElementById('oc-fracA').value) || 0;
+  const b = parseFloat(document.getElementById('oc-fracB').value) || 0;
+  if (!a || !b) return;
+  ocUpdate(a / b + 1);
+}
+function ocFromDecimal() {
+  const d = parseFloat(document.getElementById('oc-decimal').value) || 0;
+  ocUpdate(d);
+}
+function ocFromAmerican() {
+  const a = parseFloat(document.getElementById('oc-american').value);
+  if (isNaN(a)) return;
+  const dec = a > 0 ? (a / 100 + 1) : (100 / Math.abs(a) + 1);
+  ocUpdate(dec);
+}
+function ocClearDisplay() {
+  ['oc-rFrac','oc-rDec','oc-rAmer','oc-rProb','oc-rReturn','oc-rProfit'].forEach(id => document.getElementById(id).textContent='—');
+}
+function ocReset() {
+  ['oc-fracA','oc-fracB','oc-decimal','oc-american'].forEach(id => document.getElementById(id).value='');
+  ocClearDisplay();
+}
+
+// ── INIT ──
+dInit();
+mlInit();
+bbBetChange();
+</script>
+</body>
+</html>
